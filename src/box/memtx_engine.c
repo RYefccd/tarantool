@@ -1441,6 +1441,8 @@ memtx_index_def_change_requires_rebuild(struct index *index,
 				  new_part->path, new_part->path_len,
 				  TUPLE_INDEX_BASE) != 0)
 			return true;
+		if (old_part->exclude_null != new_part->exclude_null)
+			return true;
 	}
 	assert(old_cmp_def->is_multikey == new_cmp_def->is_multikey);
 	return false;
