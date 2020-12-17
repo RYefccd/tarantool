@@ -741,6 +741,41 @@ memtx_tree_index_get(struct index *base, const char *key,
 	return 0;
 }
 
+#include <iostream>
+#include <string>
+
+template <bool USE_HINT>
+struct LogReplace {
+	LogReplace(struct tuple *old_tup, struct tuple *new_tup, memtx_tree_index<USE_HINT> *index_) {
+		mess = "Replacing ";
+		if (old_tup == NULL)
+			mess += "NULL";
+		else
+			mess += mp_str(tuple_data(old_tup));
+		mess += " with ";
+		if (new_tup == NULL)
+			mess += "NULL";
+		else
+			mess += mp_str(tuple_data(new_tup));
+		index = index_;
+	}
+	~LogReplace()
+	{
+		std::cout << mess << std::endl;
+		std::cout << "Index contents";
+		auto itr = memtx_tree_iterator_first(&index->tree);
+		while (!memtx_tree_iterator_is_invalid(&itr)) {
+			struct memtx_tree_data<USE_HINT> *res =
+				memtx_tree_iterator_get_elem(&index->tree, &itr);
+			std::cout << " " << mp_str(tuple_data(res->tuple));
+			memtx_tree_iterator_next(&index->tree, &itr);
+		}
+		std::cout << std::endl;
+	}
+	std::string mess;
+	memtx_tree_index<USE_HINT> *index;
+};
+
 template <bool USE_HINT>
 static int
 memtx_tree_index_replace(struct index *base, struct tuple *old_tuple,
@@ -749,6 +784,7 @@ memtx_tree_index_replace(struct index *base, struct tuple *old_tuple,
 {
 	struct memtx_tree_index<USE_HINT> *index =
 		(struct memtx_tree_index<USE_HINT> *)base;
+	LogReplace<USE_HINT> printer(old_tuple, new_tuple, index);
 	struct key_def *cmp_def = memtx_tree_cmp_def(&index->tree);
 	if (new_tuple) {
 		struct memtx_tree_data<USE_HINT> new_data;

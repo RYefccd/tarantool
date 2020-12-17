@@ -1034,6 +1034,7 @@ memtx_tx_tuple_clarify_slow(struct txn *txn, struct space *space,
 			    struct tuple *tuple, uint32_t index,
 			    uint32_t mk_index, bool is_prepared_ok)
 {
+	printf("calify_slow %s\n", mp_str(tuple_data(tuple)));
 	assert(tuple->is_dirty);
 	struct memtx_story *story = memtx_tx_story_get(tuple);
 	bool own_change = false;
@@ -1063,6 +1064,7 @@ memtx_tx_tuple_clarify_slow(struct txn *txn, struct space *space,
 void
 memtx_tx_on_space_delete(struct space *space)
 {
+	printf("memtx_tx_on_space_delete\n");
 	/* Just clear pointer to space, it will be handled in GC. */
 	while (!rlist_empty(&space->memtx_stories)) {
 		struct memtx_story *story
@@ -1172,6 +1174,14 @@ memtx_tx_track_read(struct txn *txn, struct space *space, struct tuple *tuple)
 	}
 	rlist_add(&story->reader_list, &tracker->in_reader_list);
 	rlist_add(&txn->read_set, &tracker->in_read_set);
+
+	size_t reader_list_size = 0;
+	for (struct rlist *r = story->reader_list.next; r != &story->reader_list; r = r->next)
+		reader_list_size++;
+	size_t read_set_size = 0;
+	for (struct rlist *r = txn->read_set.next; r != &txn->read_set; r = r->next)
+		read_set_size++;
+	printf("track %s %lu %lu\n", mp_str(tuple_data(tuple)), reader_list_size, read_set_size);
 	return 0;
 }
 
