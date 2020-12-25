@@ -14,6 +14,10 @@ variables:
   GIT_STRATEGY: none
   GIT_CLEAN_FLAGS: none
   OSX_VARDIR: /tmp/tnt
+  REPLICATION_SYNC_TIMEOUT: 300
+  TEST_TIMEOUT: 310
+  NO_OUTPUT_TIMEOUT: 320
+  PRESERVE_ENVVARS: REPLICATION_SYNC_TIMEOUT,TEST_TIMEOUT,NO_OUTPUT_TIMEOUT
 
 # 1. Git checkout strategy used from:
 #    https://docs.gitlab.com/ee/ci/yaml/README.html#git-checkout

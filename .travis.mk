@@ -265,6 +265,9 @@ test_oos_build:
 	docker run --network=host -w ${OOS_SRC_PATH} \
 		--mount type=bind,source="${PWD}",target=${OOS_SRC_PATH},readonly,bind-propagation=rslave \
 		--tmpfs ${OOS_BUILD_PATH}:exec \
+		-e REPLICATION_SYNC_TIMEOUT \
+		-e TEST_TIMEOUT \
+		-e NO_OUTPUT_TIMEOUT \
 		-i ${DOCKER_IMAGE_TARANTOOL} \
 		make -f .travis.mk ${OOS_BUILD_RULE}
 
@@ -362,6 +365,9 @@ build_freebsd:
 	gmake -j
 
 test_freebsd_no_deps: build_freebsd
+	export REPLICATION_SYNC_TIMEOUT=${REPLICATION_SYNC_TIMEOUT} ; \
+	export TEST_TIMEOUT=${TEST_TIMEOUT} ; \
+	export NO_OUTPUT_TIMEOUT=${NO_OUTPUT_TIMEOUT} ; \
 	cd test && python2.7 test-run.py --force $(TEST_RUN_EXTRA_PARAMS)
 
 test_freebsd: deps_freebsd test_freebsd_no_deps
