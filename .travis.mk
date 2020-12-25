@@ -24,6 +24,7 @@ all: package
 
 package:
 	git clone https://github.com/packpack/packpack.git packpack
+	git checkout Totktonada/preserve-envvars-list
 	./packpack/packpack
 
 test: test_$(TRAVIS_OS_NAME)
